@@ -3,6 +3,7 @@ import random
 
 # Initialisiere Pygame
 pygame.init()
+pygame.mixer.init()  #Soundmixer
 
 # Farben
 BLACK = (0, 0, 0)
@@ -25,6 +26,10 @@ FIELD_HEIGHT = 20
 
 # Geschwindigkeit des Spiels
 FPS = 120
+
+# Musik laden und starten
+pygame.mixer.music.load('Tetris.mp3')  # Lade die Musikdatei
+pygame.mixer.music.play(-1)  # Spiele die Musik in Endlosschleife
 
 # Formen und ihre Rotationen
 SHAPES = [
@@ -260,6 +265,11 @@ def main():
     locked_positions = {}
     grid = create_grid(locked_positions)
 
+    # Setze die Hintergrundmusik bei Spielbeginn fort
+    pygame.mixer.music.play(-1)  # Spiele die Musik in Endlosschleife, falls sie gestoppt wurde
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption('Tetris')
+
     change_piece = False
     run = True
     current_piece = get_shape()
@@ -349,7 +359,7 @@ def main_menu():
     run = True
     while run:
         screen.fill(GRAY)
-        draw_text_middle('Press Any Key to Play', 60, WHITE, screen)
+        draw_text_middle('Press to Play', 60, WHITE, screen)
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
