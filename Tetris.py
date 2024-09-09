@@ -29,7 +29,7 @@ FPS = 120
 
 # Musik laden und starten
 pygame.mixer.music.load('Tetris.mp3')  # Lade die Musikdatei
-pygame.mixer.music.play(-1)  # Spiele die Musik in Endlosschleife
+#pygame.mixer.music.play(-1)  # Spiele die Musik in Endlosschleife
 
 # Formen und ihre Rotationen
 SHAPES = [
