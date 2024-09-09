@@ -10,6 +10,7 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+GRAY = (128, 128, 128)
 
 # Bildschirmgröße
 SCREEN_WIDTH = 400
@@ -28,70 +29,100 @@ FPS = 120
 # Formen und ihre Rotationen
 SHAPES = [
     [['.....',
-      '.....',
+      '..O..',
       '..O..',
       '..O..',
       '..O..'],
      ['.....',
       '.....',
       '.....',
-      'OOO..',
+      'OOOO.',
       '.....']],
-    [['.....',
-      '.....',
+    [['..OO.',
       '..O..',
-      '.OO..',
-      '.O...'],
-     ['.....',
+      '..O..',
       '.....',
-      '.00..',
+      '.....'],
+     ['.OOO.',
+      '...O.',
+      '.....',
+      '.....',
+      '.....'],
+     ['...O.',
+      '...O.',
       '..OO.',
-      '.....']],
-    [['.....',
       '.....',
+      '.....'],
+     ['.O...',
+      '.OOO.',
+      '.....',
+      '.....',
+      '.....']],
+    [['...O.',
+      '.OOO.',
+      '.....',
+      '.....',
+      '.....'],
+     ['.O...',
       '.O...',
       '.OO..',
-      '..O..'],
-     ['.....',
+      '.....',
+      '.....'],
+     ['.OOO.',
+      '.O...',
       '.....',
       '.....',
-      '.OOO.',
-      '.O...']],
+      '.....'],
+     ['..OO.',
+      '...O.',
+      '...O.',
+      '.....',
+      '.....']],
     [['.....',
       '.....',
       '.....',
       '.OO..',
       '.OO..']],
-    [['.....',
+    [['..OO.',
+      '.OO..',
       '.....',
+      '.....',
+      '.....'],
+     ['.O...',
+      '.OO..',
       '..O..',
+      '.....',
+      '.....']],
+    [['.OO..',
       '..OO.',
-      '...O.'],
-     ['.....',
       '.....',
       '.....',
-      '.OOO.',
-      '.O...']],
-    [['.....',
-      '.....',
-      '.O...',
-      '.OO..',
-      '..O..'],
-     ['.....',
-      '.....',
-      '.....',
-      '.OOO.',
-      '.O...']],
-    [['.....',
-      '.....',
+      '.....'],
+     ['...O.',
+      '..OO.',
       '..O..',
+      '.....',
+      '.....']],
+    [['.OOO.',
+      '..O..',
+      '.....',
+      '.....',
+      '.....'],
+     ['..O..',
       '.OO..',
-      '.O...'],
-     ['.....',
+      '..O..',
       '.....',
-      '.....',
+      '.....'],
+     ['..O..',
       '.OOO.',
-      '..O..']]
+      '.....',
+      '.....',
+      '.....'],
+     ['..O..',
+      '..OO.',
+      '..O..',
+      '.....',
+      '.....']]
 ]
 
 # Farben der Formen
@@ -102,8 +133,7 @@ SHAPE_COLORS = [
     (255, 255, 0),
     (0, 255, 0),
     (255, 0, 0),
-    (128, 0, 128)
-]
+    (128, 0, 128)]
 
 class Piece:
     def __init__(self, x, y, shape):
@@ -180,6 +210,15 @@ def draw_grid_lines(surface):
     for x in range(FIELD_WIDTH):
         pygame.draw.line(surface, WHITE, (x * BLOCK_SIZE, 0), (x * BLOCK_SIZE, SCREEN_HEIGHT))
 
+def draw_score(surface, score):
+    font = pygame.font.Font(pygame.font.get_default_font(), 30)
+    label = font.render(f'Score: {score}', 1, WHITE)
+
+    sx = 30  # X-Position auf dem Bildschirm
+    sy = 30  # Y-Position auf dem Bildschirm
+    surface.blit(label, (sx, sy))
+
+
 def clear_rows(grid, locked):
     increment = 0
     for y in range(len(grid)-1, -1, -1):
@@ -228,6 +267,7 @@ def main():
     next_piece = get_shape()
     clock = pygame.time.Clock()
     fall_time = 0
+    points = 0  # Punktesystem einführen
 
     while run:
         grid = create_grid(locked_positions)
@@ -282,12 +322,13 @@ def main():
             next_piece = get_shape()
             change_piece = False
 
-            if clear_rows(grid, locked_positions):
-                # Hier könnte man Punkte vergeben
-                pass
+            cleared_rows = clear_rows(grid, locked_positions)
+            if cleared_rows:
+                points += cleared_rows * 100  # 100 Punkte pro gelöschter Reihe
 
         draw_grid(screen, grid)
         draw_next_shape(next_piece, screen)
+        draw_score(screen, points)  # Punkte auf dem Bildschirm anzeigen
         pygame.display.update()
 
         if check_lost(locked_positions):
@@ -303,8 +344,8 @@ def main_menu():
 
     run = True
     while run:
-        screen.fill(BLACK)
-        draw_text_middle('Press Any Key To Play', 60, WHITE, screen)
+        screen.fill(GRAY)
+        draw_text_middle('Press to Play', 60, WHITE, screen)
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
