@@ -3,7 +3,6 @@ import random
 
 # Initialisiere Pygame
 pygame.init()
-pygame.mixer.init()  #Soundmixer
 
 # Farben
 BLACK = (0, 0, 0)
@@ -11,14 +10,13 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
-GRAY = (128, 128, 128)
 
 # Bildschirmgröße
-SCREEN_WIDTH = 600  # Breiter als das Spielfeld, damit wir Platz für die UI haben
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 400
+SCREEN_HEIGHT = 500
 
 # Blockgröße
-BLOCK_SIZE = 30
+BLOCK_SIZE = 20
 
 # Spielfeldgröße
 FIELD_WIDTH = 10
@@ -27,107 +25,73 @@ FIELD_HEIGHT = 20
 # Geschwindigkeit des Spiels
 FPS = 120
 
-# Musik laden und starten
-pygame.mixer.music.load('Tetris.mp3')  # Lade die Musikdatei
-#pygame.mixer.music.play(-1)  # Spiele die Musik in Endlosschleife
-
 # Formen und ihre Rotationen
 SHAPES = [
     [['.....',
-      '..O..',
+      '.....',
       '..O..',
       '..O..',
       '..O..'],
      ['.....',
       '.....',
       '.....',
-      'OOOO.',
+      'OOO..',
       '.....']],
-    [['..OO.',
+    [['.....',
+      '.....',
       '..O..',
-      '..O..',
+      '.OO..',
+      '.O...'],
+     ['.....',
       '.....',
-      '.....'],
-     ['.OOO.',
-      '...O.',
-      '.....',
-      '.....',
-      '.....'],
-     ['...O.',
-      '...O.',
+      '.00..',
       '..OO.',
-      '.....',
-      '.....'],
-     ['.O...',
-      '.OOO.',
-      '.....',
-      '.....',
       '.....']],
-    [['...O.',
-      '.OOO.',
+    [['.....',
       '.....',
-      '.....',
-      '.....'],
-     ['.O...',
       '.O...',
       '.OO..',
-      '.....',
-      '.....'],
-     ['.OOO.',
-      '.O...',
+      '..O..'],
+     ['.....',
       '.....',
       '.....',
-      '.....'],
-     ['..OO.',
-      '...O.',
-      '...O.',
-      '.....',
-      '.....']],
+      '.OOO.',
+      '.O...']],
     [['.....',
       '.....',
       '.....',
       '.OO..',
       '.OO..']],
-    [['..OO.',
-      '.OO..',
+    [['.....',
       '.....',
-      '.....',
-      '.....'],
-     ['.O...',
-      '.OO..',
       '..O..',
-      '.....',
-      '.....']],
-    [['.OO..',
       '..OO.',
+      '...O.'],
+     ['.....',
       '.....',
       '.....',
-      '.....'],
-     ['...O.',
-      '..OO.',
-      '..O..',
-      '.....',
-      '.....']],
-    [['.OOO.',
-      '..O..',
-      '.....',
-      '.....',
-      '.....'],
-     ['..O..',
-      '.OO..',
-      '..O..',
-      '.....',
-      '.....'],
-     ['..O..',
       '.OOO.',
+      '.O...']],
+    [['.....',
+      '.....',
+      '.O...',
+      '.OO..',
+      '..O..'],
+     ['.....',
       '.....',
       '.....',
-      '.....'],
-     ['..O..',
-      '..OO.',
+      '.OOO.',
+      '.O...']],
+    [['.....',
+      '.....',
       '..O..',
+      '.OO..',
+      '.O...'],
+     ['.....',
       '.....',
-      '.....']]
+      '.....',
+      '.OOO.',
+      '..O..']]
 ]
 
 # Farben der Formen
@@ -138,7 +102,8 @@ SHAPE_COLORS = [
     (255, 255, 0),
     (0, 255, 0),
     (255, 0, 0),
-    (128, 0, 128)]
+    (128, 0, 128)
+]
 
 class Piece:
     def __init__(self, x, y, shape):
@@ -211,9 +176,9 @@ def draw_grid(surface, grid):
 
 def draw_grid_lines(surface):
     for y in range(FIELD_HEIGHT):
-        pygame.draw.line(surface, WHITE, (0, y * BLOCK_SIZE), (FIELD_WIDTH * BLOCK_SIZE, y * BLOCK_SIZE))
+        pygame.draw.line(surface, WHITE, (0, y * BLOCK_SIZE), (SCREEN_WIDTH, y * BLOCK_SIZE))
     for x in range(FIELD_WIDTH):
-        pygame.draw.line(surface, WHITE, (x * BLOCK_SIZE, 0), (x * BLOCK_SIZE, FIELD_HEIGHT * BLOCK_SIZE))
+        pygame.draw.line(surface, WHITE, (x * BLOCK_SIZE, 0), (x * BLOCK_SIZE, SCREEN_HEIGHT))
 
 def clear_rows(grid, locked):
     increment = 0
@@ -241,7 +206,7 @@ def draw_next_shape(shape, surface):
     font = pygame.font.Font(pygame.font.get_default_font(), 30)
     label = font.render('Next Shape', 1, WHITE)
 
-    sx = FIELD_WIDTH * BLOCK_SIZE + 50
+    sx = SCREEN_WIDTH + 50
     sy = SCREEN_HEIGHT / 2 - 100
     format = shape.shape[shape.rotation % len(shape.shape)]
 
@@ -253,22 +218,9 @@ def draw_next_shape(shape, surface):
 
     surface.blit(label, (sx + 10, sy - 30))
 
-def draw_score(surface, score):
-    font = pygame.font.Font(pygame.font.get_default_font(), 30)
-    label = font.render(f'Score: {score}', 1, WHITE)
-
-    sx = FIELD_WIDTH * BLOCK_SIZE + 50
-    sy = SCREEN_HEIGHT / 2 - 200
-    surface.blit(label, (sx + 10, sy))
-
 def main():
     locked_positions = {}
     grid = create_grid(locked_positions)
-
-    # Setze die Hintergrundmusik bei Spielbeginn fort
-    pygame.mixer.music.play(-1)  # Spiele die Musik in Endlosschleife, falls sie gestoppt wurde
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption('Tetris')
 
     change_piece = False
     run = True
@@ -276,10 +228,6 @@ def main():
     next_piece = get_shape()
     clock = pygame.time.Clock()
     fall_time = 0
-    points = 0  # Punktesystem einführen
-
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption('Tetris')
 
     while run:
         grid = create_grid(locked_positions)
@@ -334,33 +282,29 @@ def main():
             next_piece = get_shape()
             change_piece = False
 
-            cleared_rows = clear_rows(grid, locked_positions)
-            if cleared_rows:
-                points += cleared_rows * 100  # 100 Punkte pro gelöschter Reihe
-
-        screen.fill(BLACK)  # Hintergrund schwarz füllen
-        pygame.draw.rect(screen, GRAY, (0, 0, FIELD_WIDTH * BLOCK_SIZE, FIELD_HEIGHT * BLOCK_SIZE), 5)  # Rahmen um Spielfeld
+            if clear_rows(grid, locked_positions):
+                # Hier könnte man Punkte vergeben
+                pass
 
         draw_grid(screen, grid)
         draw_next_shape(next_piece, screen)
-        draw_score(screen, points)  # Punkte auf dem Bildschirm anzeigen
         pygame.display.update()
 
         if check_lost(locked_positions):
-            screen.fill(BLACK)
             draw_text_middle("YOU LOST", 80, WHITE, screen)
             pygame.display.update()
             pygame.time.delay(1500)
             run = False
 
 def main_menu():
+    global screen
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption('Tetris')
 
     run = True
     while run:
-        screen.fill(GRAY)
-        draw_text_middle('Press to Play', 60, WHITE, screen)
+        screen.fill(BLACK)
+        draw_text_middle('Press Any Key To Play', 60, WHITE, screen)
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
