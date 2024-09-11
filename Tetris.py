@@ -401,5 +401,5 @@ def main_menu():
 
     pygame.quit()  # Beende das Spiel und schließe das Fenster
 
-# Starte das Hauptmenü
+
 main_menu()
